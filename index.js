@@ -4,6 +4,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require('jsonwebtoken');
 
 app.use(cors());
 app.use(express.json());
@@ -15,7 +16,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        const stockCollection = client.db("daku").collection("product");
+        const toolCollection = client.db("daku").collection("product");
+        const userCollection = client.db("daku").collection("users");
+        const orderCollection = client.db("daku").collection("order");
 
         app.get("/product", async (req, res) => {
             const count = parseInt(req.query.count);
@@ -23,12 +26,12 @@ async function run() {
             let query = {};
             if (myEmail) {
                 query = { email: myEmail };
-                const cursor = stockCollection.find(query);
+                const cursor = toolCollection.find(query);
                 const stock = await cursor.toArray();
                 res.send(stock);
             } else {
                 query = {};
-                const cursor = stockCollection.find(query);
+                const cursor = toolCollection.find(query);
                 let stock;
 
                 if (count) {
@@ -44,7 +47,7 @@ async function run() {
         app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const product = await stockCollection.findOne(query);
+            const product = await toolCollection.findOne(query);
             res.send(product);
         });
 
@@ -58,7 +61,7 @@ async function run() {
                     available: newData.newquantity,
                 },
             };
-            const result = await stockCollection.updateOne(
+            const result = await toolCollection.updateOne(
                 filter,
                 updatedDoc,
                 options
@@ -69,15 +72,37 @@ async function run() {
         app.delete("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await stockCollection.deleteOne(query);
+            const result = await toolCollection.deleteOne(query);
             res.send(result);
         });
 
         app.post("/product", async (req, res) => {
             const newData = req.body;
-            const result = await stockCollection.insertOne(newData);
+            const result = await toolCollection.insertOne(newData);
             res.send(result);
         });
+
+        //📧📧📧📧📧📧📧📧📧 user email 📧📧📧📧📧📧📧📧📧
+        app.put("/user/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const option = { upsert: true };
+            const updatedDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updatedDoc, option);
+            const token = jwt.sign({ email: email }, process.env.SECRET_TOKEN, { expiresIn: '100d' });
+            res.send({ result, token });
+        })
+
+        //🍔🍔🍔🍔🍔🍔🍔🍔🍔 order 🍔🍔🍔🍔🍔🍔🍔🍔🍔
+        app.post("/orders/:email", async (req, res) => {
+            const newData = req.body;
+            const result = await toolCollection.insertOne(newData);
+            res.send(result);
+        });
+
     } finally {
     }
 }
