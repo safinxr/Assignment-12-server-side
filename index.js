@@ -97,9 +97,9 @@ async function run() {
         })
 
         //🍔🍔🍔🍔🍔🍔🍔🍔🍔 order 🍔🍔🍔🍔🍔🍔🍔🍔🍔
-        app.post("/orders/:email", async (req, res) => {
+        app.post("/orders", async (req, res) => {
             const newData = req.body;
-            const result = await toolCollection.insertOne(newData);
+            const result = await orderCollection.insertOne(newData);
             res.send(result);
         });
 
