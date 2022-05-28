@@ -13,6 +13,21 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.exyob.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+const verifyJWT = (req, res, next) => {
+    const authHeaders = req.headers.authorization;
+    if (!authHeaders) {
+        return res.status(401).send({ message: 'UnAuthorized access' })
+    }
+    const token = authHeaders.split(" ")[1];
+    jwt.verify(token, process.env.SECRET_TOKEN, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: ' Forbidden access' })
+        }
+        req.decoded = decoded;
+        next()
+    });
+}
+
 async function run() {
     try {
         await client.connect();
@@ -104,15 +119,26 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/orders/:email', async (req, res) => {
+        app.get('/orders/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
-            const query = { email: email };
-            console.log(email)
-            const cursor = orderCollection.find(query);
-            const myOrders = await cursor.toArray();
-            // console.log(myOrders)
-            res.send(myOrders);
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = orderCollection.find(query);
+                const myOrders = await cursor.toArray();
+                res.send(myOrders);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
         })
+
+        app.delete("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        });
 
         //✨✨✨✨✨✨✨✨ review ✨✨✨✨✨✨✨✨
         app.get('/review', async (req, res) => {
@@ -128,6 +154,12 @@ async function run() {
             }
             res.send(reviews);
         })
+
+        app.post("/review", async (req, res) => {
+            const newData = req.body;
+            const result = await reviewCollection.insertOne(newData);
+            res.send(result);
+        });        
 
     } finally {
     }
