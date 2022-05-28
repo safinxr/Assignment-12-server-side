@@ -1,0 +1,30 @@
+[
+    {
+      "rating": 5,
+      "review": "Very much satisfied with the quality. Nice and sturdy product, works very well.",
+      "name": "Turner Sparks",
+      "country": "Australia",
+      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPLvmBZ97S13Zi6sMtD8oIF3Mh9E6CNaNeUg&usqp=CAU"
+    },
+    {
+      "rating": 2,
+      "review": "daku product Not strong as i expected. Can work on small branches of plant. Expected a lot more from tolsen..",
+      "name": "Potts Garrison",
+      "country": "Canada",
+      "img": "https://cdn2.opendemocracy.net/media/images/profile2.2e16d0ba.fill-200x200.jpg"
+    },
+    {
+      "rating": 5,
+      "review": "Satisfied with daku product. Working perfectly. strongly recommended.",
+      "name": "Lana Sampson",
+      "country": "United States",
+      "img": "https://blog.jetbrains.com/wp-content/uploads/2021/05/ryabukha-ekaterina-profile-pic-200x200.jpeg"
+    },
+    {
+      "rating": 5,
+      "review": "Satisfied with the quality of the products. A very warm  Thanks to daku. Highly recommended. ",
+      "name": "Mabel Larsen",
+      "country": "China",
+      "img": "https://img.kpopmap.com/200x200/2021/10/magic-girl-member-profile-SuMin.jpg"
+    }
+  ]

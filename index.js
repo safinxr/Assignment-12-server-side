@@ -19,6 +19,7 @@ async function run() {
         const toolCollection = client.db("daku").collection("product");
         const userCollection = client.db("daku").collection("users");
         const orderCollection = client.db("daku").collection("order");
+        const reviewCollection = client.db("daku").collection("review");
 
         app.get("/product", async (req, res) => {
             const count = parseInt(req.query.count);
@@ -102,6 +103,31 @@ async function run() {
             const result = await orderCollection.insertOne(newData);
             res.send(result);
         });
+
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            console.log(email)
+            const cursor = orderCollection.find(query);
+            const myOrders = await cursor.toArray();
+            // console.log(myOrders)
+            res.send(myOrders);
+        })
+
+        //✨✨✨✨✨✨✨✨ review ✨✨✨✨✨✨✨✨
+        app.get('/review', async (req, res) => {
+            const count = parseInt(req.query.count);
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            let reviews;
+
+            if (count) {
+                reviews = await cursor.limit(count).toArray();
+            } else {
+                reviews = await cursor.toArray();
+            }
+            res.send(reviews);
+        })
 
     } finally {
     }
